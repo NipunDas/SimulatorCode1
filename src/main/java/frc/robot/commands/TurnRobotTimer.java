@@ -8,39 +8,42 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.OI;
 
-//This command drives forward using encoder - doesn't work in simulator
-public class DriveForward extends Command {
+public class TurnRobotTimer extends Command {
 
-  //Constants for speed and distance
-  private double distance;
-  private double motorSpeed;
+  private final Timer m_timer = new Timer();
+  public double targetTurnTime;
 
-  public DriveForward(double distanceInInches, double speed) {
+  public TurnRobotTimer(double time) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(OI.m_drive);
-    distance = distanceInInches;
-    motorSpeed = speed;
+    targetTurnTime = time;
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    OI.m_drive.resetEncoders();
+    m_timer.reset();
+    m_timer.start();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    OI.m_drive.tankDrive(motorSpeed, motorSpeed);
+    if (targetTurnTime > 0) {
+      OI.m_drive.tankDrive(-0.3, 0.3);
+    } else {
+      OI.m_drive.tankDrive(0.3, -0.3);
+    }
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    if (Math.abs(OI.m_drive.returnDistance() - distance) <= 2) {
+    if (m_timer.get() >= targetTurnTime) {
       return true;
     } else {
       return false;

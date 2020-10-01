@@ -10,37 +10,39 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.OI;
 
-//This command drives forward using encoder - doesn't work in simulator
-public class DriveForward extends Command {
+public class TurnRobot extends Command {
 
-  //Constants for speed and distance
-  private double distance;
-  private double motorSpeed;
+  double targetAngle;
 
-  public DriveForward(double distanceInInches, double speed) {
+  public TurnRobot(double angle) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(OI.m_drive);
-    distance = distanceInInches;
-    motorSpeed = speed;
+    targetAngle = angle;
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    OI.m_drive.resetEncoders();
+    OI.m_drive.resetGyro();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    OI.m_drive.tankDrive(motorSpeed, motorSpeed);
+    if (OI.m_drive.getAngle() < targetAngle) {
+      OI.m_drive.tankDrive(-0.2, 0.2);
+    }
+
+    if (OI.m_drive.getAngle() > targetAngle) {
+      OI.m_drive.tankDrive(0.2, -0.2);
+    }
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    if (Math.abs(OI.m_drive.returnDistance() - distance) <= 2) {
+    if (Math.abs(OI.m_drive.getAngle() - targetAngle) <= 2) {
       return true;
     } else {
       return false;

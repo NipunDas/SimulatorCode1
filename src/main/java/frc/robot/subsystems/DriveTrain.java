@@ -9,10 +9,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
-import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.RobotMap;
 import frc.robot.OI;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 /**
  * Add your docs here.
@@ -23,11 +23,14 @@ public class DriveTrain extends Subsystem {
 
   private PWMTalonSRX left = new PWMTalonSRX(RobotMap.leftDrivePort), right = new PWMTalonSRX(RobotMap.rightDrivePort);
   public static DriveTrain drive;
-  private DifferentialDrive m_drive = new DifferentialDrive((SpeedController) left, (SpeedController) right);
+  private Encoder leftEncoder = new Encoder(0, 1), rightEncoder = new Encoder(2, 3);
+  private ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
   public DriveTrain() {
     left.setInverted(true);
-    right.setInverted(true);
+    leftEncoder.reset();
+    rightEncoder.reset();
+    gyro.reset();
   }
 
   public static DriveTrain getInstance() {
@@ -38,9 +41,38 @@ public class DriveTrain extends Subsystem {
   }
 
   public void tankDrive(double leftPow, double rightPow) {
-    m_drive.tankDrive(leftPow * 0.5, rightPow * 0.5);
+
+    //Minimizing error from small inputs
+    if (leftPow < 0.05 && leftPow > -0.05) {
+      leftPow = 0;
+    }
+    if (rightPow < 0.05 && rightPow > -0.05) {
+      rightPow = 0;
+    }
+
+    left.set(leftPow);
+    right.set(rightPow);
   }
   
+  public void resetEncoders() {
+    leftEncoder.reset();
+    rightEncoder.reset();
+  }
+
+  public double returnDistance() {
+    double leftDistance = (leftEncoder.getRaw()/4096) * 3.5;
+    double rightDistance = (rightEncoder.getRaw()/4096) * 3.5;
+    return (leftDistance + rightDistance)/2;
+  }
+
+  public void resetGyro() {
+    gyro.reset();
+  }
+
+  public double getAngle() {
+    return gyro.getAngle();
+  }
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
@@ -49,6 +81,6 @@ public class DriveTrain extends Subsystem {
 
   @Override
   public void periodic() {
-    tankDrive(OI.returnController().getRawAxis(RobotMap.leftJoystick), OI.returnController().getRawAxis(RobotMap.rightJoystick));
+    tankDrive(OI.returnController().getRawAxis(RobotMap.leftJoystick) * 0.3, OI.returnController().getRawAxis(RobotMap.rightJoystick) * 0.3);
   }
 }
