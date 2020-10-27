@@ -82,28 +82,36 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     String gameData = DriverStation.getInstance().getGameSpecificMessage();
-    
+    /*
+    if (gameData.length() > 0) {
+      m_autonomousCommand = new PIDDriveForward(Integer.parseInt(gameData));
+    } else {
+      m_autonomousCommand = new PIDDriveForward(50);
+    }
+    */
+  
     if (gameData.length() > 0) {
       switch(gameData.charAt(0)) {
         case '1':
           m_autonomousCommand = new Path1();
           break;
         case '2':
-          //m_autonomousCommand = new Path2();
+          m_autonomousCommand = new Path2();
           break;
         case '3':
-          //m_autonomousCommand = new Path3();
+          m_autonomousCommand = new Path3();
           break;
         case '4':
-          //m_autonomousCommand = new Path4();
+          m_autonomousCommand = new Path4();
           break;
         default:
-          //m_autonomousCommand = new Path1();
+          m_autonomousCommand = new Path1();
           break;  
       }
     } else {
       m_autonomousCommand = new Path1();
     }
+    
     
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",

@@ -34,13 +34,17 @@ public class DriveForwardTimer extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    OI.m_drive.tankDrive(-0.3, -0.3);
+    if (targetTime > 0) {
+      OI.m_drive.tankDrive(-0.5, -0.5);
+    } else {
+      OI.m_drive.tankDrive(0.5, 0.5);
+    }
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    if (m_timer.get() >= targetTime) {
+    if (m_timer.get() >= Math.abs(targetTime)) {
       return true;
     } else {
       return false;

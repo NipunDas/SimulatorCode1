@@ -43,7 +43,7 @@ public class TurnRobotTimer extends Command {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    if (m_timer.get() >= targetTurnTime) {
+    if (m_timer.get() >= Math.abs(targetTurnTime)) {
       return true;
     } else {
       return false;
